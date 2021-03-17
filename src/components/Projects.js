@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { useProjectsValue, useSelectedProjectValue } from "../context";
+import PropTypes from "prop-types";
+import { useSelectedProjectValue, useProjectsValue } from "../context";
 import { IndividualProject } from "./IndividualProject";
 
 export const Projects = ({ activeValue = null }) => {
@@ -12,11 +13,10 @@ export const Projects = ({ activeValue = null }) => {
     projects.map((project) => (
       <li
         key={project.projectId}
-        data-doc-id={project.docId}
         data-testid="project-action-parent"
-        role="button"
+        data-doc-id={project.docId}
         className={
-          active === projects.projectId
+          active === project.projectId
             ? "active sidebar__project"
             : "sidebar__project"
         }
@@ -42,4 +42,8 @@ export const Projects = ({ activeValue = null }) => {
       </li>
     ))
   );
+};
+
+Projects.propTypes = {
+  activeValue: PropTypes.bool,
 };

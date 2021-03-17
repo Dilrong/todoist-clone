@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { FaRegListAlt, FaRegCalendarAlt } from "react-icons/fa";
 import moment from "moment";
+import PropTypes from "prop-types";
 import { firebase } from "../firebase";
 import { useSelectedProjectValue } from "../context";
 import { ProjectOverlay } from "./ProjectOverlay";
@@ -28,7 +29,7 @@ export const AddTask = ({
     if (projectId === "TODAY") {
       collatedDate = moment().format("DD/MM/YYYY");
     } else if (projectId === "NEXT_7") {
-      collatedDate = moment().add(7, "ddays").format("DD/MM/YYYY");
+      collatedDate = moment().add(7, "days").format("DD/MM/YYYY");
     }
 
     return (
@@ -44,12 +45,13 @@ export const AddTask = ({
           date: collatedDate || taskDate,
           userId: "jlIFXIwyAL3tzHMtzRbw",
         })
-    ).then(() => {
-      setTask("");
-      setProject("");
-      setShowMain("");
-      setShowProjectOverlay(false);
-    });
+        .then(() => {
+          setTask("");
+          setProject("");
+          setShowMain("");
+          setShowProjectOverlay(false);
+        })
+    );
   };
 
   return (
@@ -62,6 +64,12 @@ export const AddTask = ({
           className="add-task__shallow"
           data-testid="show-main-action"
           onClick={() => setShowMain(!showMain)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") setShowMain(!showMain);
+          }}
+          tabIndex={0}
+          aria-label="Add task"
+          role="button"
         >
           <span className="add-task__plus">+</span>
           <span className="add-task__text">Add Task</span>
@@ -77,11 +85,21 @@ export const AddTask = ({
                 <span
                   className="add-task__cancel-x"
                   data-testid="add-task-quick-cancel"
+                  aria-label="Cancel adding task"
                   onClick={() => {
                     setShowMain(false);
                     setShowProjectOverlay(false);
                     setShowQuickAddTask(false);
                   }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      setShowMain(false);
+                      setShowProjectOverlay(false);
+                      setShowQuickAddTask(false);
+                    }
+                  }}
+                  tabIndex={0}
+                  role="button"
                 >
                   X
                 </span>
@@ -100,6 +118,7 @@ export const AddTask = ({
           />
           <input
             className="add-task__content"
+            aria-label="Enter your task"
             data-testid="add-task-content"
             type="text"
             value={task}
@@ -109,7 +128,11 @@ export const AddTask = ({
             type="button"
             className="add-task__submit"
             data-testid="add-task"
-            onClick={() => addTask()}
+            onClick={() =>
+              showQuickAddTask
+                ? addTask() && setShowQuickAddTask(false)
+                : addTask()
+            }
           >
             Add Task
           </button>
@@ -121,6 +144,15 @@ export const AddTask = ({
                 setShowMain(false);
                 setShowProjectOverlay(false);
               }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  setShowMain(false);
+                  setShowProjectOverlay(false);
+                }
+              }}
+              aria-label="Cancel adding a task"
+              tabIndex={0}
+              role="button"
             >
               Cancel
             </span>
@@ -138,8 +170,8 @@ export const AddTask = ({
             <FaRegListAlt />
           </span>
           <span
-            className="add-task__project"
-            data-testid="show-project-overlay"
+            className="add-task__date"
+            data-testid="show-task-date-overlay"
             onClick={() => setShowTaskDate(!showTaskDate)}
             onKeyDown={(e) => {
               if (e.key === "Enter") setShowTaskDate(!showTaskDate);
@@ -153,4 +185,11 @@ export const AddTask = ({
       )}
     </div>
   );
+};
+
+AddTask.propTypes = {
+  showAddTaskMain: PropTypes.bool,
+  shouldShowMain: PropTypes.bool,
+  showQuickAddTask: PropTypes.bool,
+  setShowQuickAddTask: PropTypes.func,
 };

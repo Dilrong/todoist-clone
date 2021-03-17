@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import PropTypes from "prop-types";
 import { firebase } from "../firebase";
 import { generatePushId } from "../helpers";
 import { useProjectsValue } from "../context";
@@ -8,29 +9,28 @@ export const AddProject = ({ shouldShow = false }) => {
   const [projectName, setProjectName] = useState("");
 
   const projectId = generatePushId();
-  const { setProjects } = useProjectsValue();
+  const { projects, setProjects } = useProjectsValue();
 
-  const addProject = () => {
+  const addProject = () =>
     projectName &&
-      firebase
-        .firestore()
-        .collection("projects")
-        .add({
-          projectId,
-          name: projectName,
-          userId: "jlIFXIwyAL3tzHMtzRbw",
-        })
-        .then(() => {
-          setProjects([]);
-          setProjectName("");
-          setShow(false);
-        });
-  };
+    firebase
+      .firestore()
+      .collection("projects")
+      .add({
+        projectId,
+        name: projectName,
+        userId: "jlIFXIwyAL3tzHMtzRbw",
+      })
+      .then(() => {
+        setProjects([...projects]);
+        setProjectName("");
+        setShow(false);
+      });
 
   return (
     <div className="add-project" data-testid="add-project">
       {show && (
-        <div className="add-project__input">
+        <div className="add-project__input" data-testid="add-project-inner">
           <input
             value={projectName}
             onChange={(e) => setProjectName(e.target.value)}
@@ -48,18 +48,38 @@ export const AddProject = ({ shouldShow = false }) => {
             Add Project
           </button>
           <span
+            aria-label="Cancel adding project"
             data-testid="hide-project-overlay"
             className="add-project__cancel"
             onClick={() => setShow(false)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") setShow(false);
+            }}
+            role="button"
+            tabIndex={0}
           >
             Cancel
           </span>
         </div>
       )}
-      <span className="add-project__plus">+ </span>
-      <span className="add-project-action" onClick={() => setShow(!show)}>
+      <span className="add-project__plus">+</span>
+      <span
+        aria-label="Add Project"
+        data-testid="add-project-action"
+        className="add-project__text"
+        onClick={() => setShow(!show)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") setShow(!show);
+        }}
+        role="button"
+        tabIndex={0}
+      >
         Add Project
       </span>
     </div>
   );
+};
+
+AddProject.propTypes = {
+  shouldShow: PropTypes.bool,
 };
