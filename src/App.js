@@ -1,17 +1,22 @@
-import React from "react";
+import React, { useState } from "react";
 import "./App.scss";
 import { Header } from "./components/layout/Header";
 import { Content } from "./components/layout/Content";
 import { ProjectsProvider, SelectedProjectProvider } from "./context";
 
-export const App = () => {
+export const App = ({ darkModeDefault = false }) => {
+  const [darkMode, setDrakMode] = useState(darkModeDefault);
+
   return (
     <SelectedProjectProvider>
       <ProjectsProvider>
-        <div className="App">
-          <Header />
+        <main
+          data-testid="application"
+          className={darkMode ? "darkmode" : undefined}
+        >
+          <Header darkMode={darkMode} setDrakMode={setDrakMode} />
           <Content />
-        </div>
+        </main>
       </ProjectsProvider>
     </SelectedProjectProvider>
   );
